@@ -139,6 +139,14 @@ GLboolean userInterrupt(ESContext *esContext)
             {
                 if (esContext->keyFunc != NULL)
                     esContext->keyFunc(esContext, text, 0, 0);
+				else {
+					//printf("text 0x%x, key=0x%lx\n", text, key);
+					if (key=0xff1b) //esc
+					{
+						userinterrupt = GL_TRUE;
+						break;
+					}
+				}
             }
         }
         if (xev.type == ClientMessage) {

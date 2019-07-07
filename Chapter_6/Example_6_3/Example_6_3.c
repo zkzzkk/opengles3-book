@@ -95,7 +95,14 @@ int Init ( ESContext *esContext )
 void Draw ( ESContext *esContext )
 {
    UserData *userData = esContext->userData;
-   GLfloat color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+   GLfloat color[4 * 3]= { 
+	   1.0f, 0.0f, 0.0f, 1.0f,
+	   0.0f, 1.0f, 0.0f, 1.0f,
+	   0.0f, 0.0f, 1.0f, 1.0f,
+	};
+   GLfloat color1[4 * 1]= { 
+	   1.0f, 0.0f, 0.0f, 1.0f,
+   };
    // 3 vertices, with (x,y,z) per-vertex
    GLfloat vertexPos[3 * 3] =
    {
@@ -112,7 +119,9 @@ void Draw ( ESContext *esContext )
 
    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 0, vertexPos );
    glEnableVertexAttribArray ( 0 );
-   glVertexAttrib4fv ( 1, color );
+   glVertexAttrib4fv ( 1, color1 );
+   glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, 0, color );
+   //glEnableVertexAttribArray ( 1 );
 
 
    glDrawArrays ( GL_TRIANGLES, 0, 3 );

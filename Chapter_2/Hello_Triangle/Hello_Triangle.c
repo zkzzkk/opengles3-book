@@ -102,19 +102,26 @@ int Init ( ESContext *esContext )
    UserData *userData = esContext->userData;
    char vShaderStr[] =
       "#version 300 es                          \n"
-      "layout(location = 0) in vec4 vPosition;  \n"
+	  "uniform vec3 mycolor; \n"
+      "layout(location = 1) in vec4 vPosition;  \n"
+      "smooth out lowp vec3 vColor; \n"
       "void main()                              \n"
       "{                                        \n"
       "   gl_Position = vPosition;              \n"
+	  "	  vColor = (vec3(vPosition.xyz) + vec3(0.5f)) * mycolor; \n"
+      "	  //vColor = mycolor; \n"
       "}                                        \n";
 
    char fShaderStr[] =
       "#version 300 es                              \n"
       "precision mediump float;                     \n"
-      "out vec4 fragColor;                          \n"
+      "out lowp vec4 fragColor;                          \n"
+      "uniform vec3 mycolor; \n"
+      "smooth in vec3 vColor; \n"
       "void main()                                  \n"
       "{                                            \n"
-      "   fragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );  \n"
+      "	 fragColor = vec4 ( vColor.x, vColor.y, vColor.z, 1.0 );  \n"
+	  "	// fragColor = vec4 ( mycolor.x, mycolor.y, mycolor.z, 1.0 );  \n"
       "}                                            \n";
 
    GLuint vertexShader;
@@ -163,6 +170,14 @@ int Init ( ESContext *esContext )
       return FALSE;
    }
 
+	//kzhang check uniforms
+    {
+		GLint num, maxLen;
+		glGetProgramiv(programObject, GL_ACTIVE_UNIFORMS, &num);
+		esLogMessage ( "kzhang numUniforms=%d\n", num );
+
+	}
+
    // Store the program object
    userData->programObject = programObject;
 
@@ -191,10 +206,19 @@ void Draw ( ESContext *esContext )
    glUseProgram ( userData->programObject );
 
    // Load the vertex data
-   glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 0, vVertices );
-   glEnableVertexAttribArray ( 0 );
+   glVertexAttribPointer ( 1, 3, GL_FLOAT, GL_FALSE, 0, vVertices );
+   glEnableVertexAttribArray ( 1 );
+
+	//kzhang use mycolor uniform
+	GLint myColorLoc = glGetUniformLocation(userData->programObject, "mycolor");
+	int frame;
+	static int tmp;
+	frame = tmp++/30;
+	glUniform3f(myColorLoc, !(frame%3), !((frame+1)%3), !((frame+2)%3));
 
    glDrawArrays ( GL_TRIANGLES, 0, 3 );
+   glFinish();
+   //esLogMessage("kzhang after glFinish\n");
 }
 
 void Shutdown ( ESContext *esContext )
